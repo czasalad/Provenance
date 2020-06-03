@@ -46,11 +46,15 @@ typedef NS_ENUM(NSInteger, PVEmulatorCoreErrorCode) {
 }
 
 @property (nonatomic, assign) double emulationFPS;
+@property (nonatomic, assign) double renderFPS;
 
 @property (nonatomic, copy) NSString *romName;
 @property (nonatomic, copy) NSString *saveStatesPath;
 @property (nonatomic, copy) NSString *batterySavesPath;
 @property (nonatomic, copy) NSString *BIOSPath;
+@property (nonatomic, copy) NSString *systemIdentifier;
+@property (nonatomic, strong) NSString* romMD5;
+
 @property (atomic, assign) BOOL shouldResyncTime;
 
 typedef NS_ENUM(NSInteger, GameSpeed) {
@@ -65,6 +69,9 @@ typedef NS_ENUM(NSInteger, GameSpeed) {
 @property (nonatomic, strong) GCController *controller2;
 
 @property (nonatomic, strong) NSLock  *emulationLoopThreadLock;
+@property (nonatomic, strong) NSCondition  *frontBufferCondition;
+@property (nonatomic, strong) NSLock  *frontBufferLock;
+@property (nonatomic, assign) BOOL isFrontBufferReady;
 
 - (void)startEmulation;
 - (void)resetEmulation;
@@ -73,7 +80,7 @@ typedef NS_ENUM(NSInteger, GameSpeed) {
 - (void)stopEmulation;
 - (void)frameRefreshThread:(id)anArgument;
 - (void)executeFrame;
-- (BOOL)loadFileAtPath:(NSString*)path;
+- (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error;
 - (void)updateControllers;
 
 - (BOOL)supportsDiskSwapping;
@@ -83,6 +90,8 @@ typedef NS_ENUM(NSInteger, GameSpeed) {
 - (CGRect)screenRect;
 - (CGSize)aspectSize;
 - (CGSize)bufferSize;
+- (BOOL)isDoubleBuffered;
+- (void)swapBuffers;
 - (GLenum)pixelFormat;
 - (GLenum)pixelType;
 - (GLenum)internalPixelFormat;
